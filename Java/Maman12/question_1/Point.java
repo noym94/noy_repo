@@ -10,6 +10,8 @@ public class Point
     private double _radius;
     private double _alpha;
     private final double DEFAULT_VAL=0.0;
+    private final double TO_DEG=(180/Math.PI);
+    private final double TO_RAD=(Math.PI/180);
     // constructors
     /**
      * Constructor for objects of class Point. Construct a new point with the specified x y coordinates. 
@@ -17,38 +19,62 @@ public class Point
      * @param x the x coordinate
      * @param y the y coordinate
      */
-    public Point(double x, double y)
+        public Point(double x, double y)
     {
-        _radius= DEFAULT_VAL;
-        _alpha= DEFAULT_VAL;
-        //x = _radius * (Math.cos(_alpha));
-        //y = _radius * (Math.sin(_alpha));
+        this._radius = calcRadiusFromXY(x, y);
+        this._alpha= calcAlphaFromXY(x, y);
     }
-    /**
+    /** 
      * Constructor for objects of class Point. Copy constructor, construct a point using another point.
      * @param other The point from which to construct the new object
      */
-    public Point (Point other)
-    {   
+        public Point(Point other)
+    {
         if(other != null)
         {
-            //x=other.x;
-            //y=other.y;
+            this._radius = other._radius;
+            this._alpha = other._alpha;
         }
         else
-        {   
-            //_x=DEFAULT_VAL;
-            //_y=DEFAULT_VAL;
+        {
+            this._radius = DEFAULT_VAL;
+            this._alpha = DEFAULT_VAL;
         }
     }
-    
+    /**
+     * Returns the radius of the a given point.
+     * @param x the x coordinate
+     * @param y the y coordinate
+     */
+    private double calcRadiusFromXY(double x, double y) 
+    {
+        return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+    }
+    /**
+     * Returns the angle of the given point. 
+     * @param x the x coordinate
+     * @param y the y coordinate
+     */
+    private double calcAlphaFromXY(double x, double y) 
+    {
+        return (Math.atan(y/x) * 180) / Math.PI;
+    }
+    /**
+     * This method rounds double number.
+     * @param num
+     * @return 
+     */
+    private double roundNumbers(double num)
+    {
+       return Math.round(num*10000)/(double)10000;
+    }
     /**
      * This method returns the x coordinate of the point.
      * @return The x coordinate of the point
      */
     public double getX()
     {
-        return (Math.round((_radius * (Math.cos(_alpha)))*10000)/(double)10000);
+        return roundNumbers(_radius * (Math.cos(_alpha*TO_RAD)));
     }
     /**
      * This method returns the y coordinate of the point.
@@ -56,7 +82,7 @@ public class Point
      */
     public double getY()
     {
-        return (Math.round((_radius * (Math.sin(_alpha)))*10000)/(double)10000);
+        return roundNumbers(_radius * (Math.sin(_alpha*TO_RAD)));
     }
     /**
      * This method sets the x coordinate of the point. If the new x coordinate is negative the old x coordinate will remain unchanged.
@@ -64,9 +90,13 @@ public class Point
      */
     public void setX(double x)
     {
+        double y = this.getY();
         if (x>=DEFAULT_VAL)
         {
-            //_x=x;
+           //_radius = roundNumbers(calcRadiusFromXY(x,getY()));
+           //_alpha = roundNumbers(calcAlphaFromXY(x,getY()));
+           _radius = Math.sqrt((y * y) + (x * x));
+           _alpha = (Math.atan(y/x) * 180) / Math.PI;
         }
     }
     /**
@@ -75,9 +105,13 @@ public class Point
      */
     public void setY(double y)
     {
+        double x = this.getX();
         if (y>=DEFAULT_VAL)
         {
-            //_y=y;
+           //_radius = roundNumbers(calcRadiusFromXY(getX(),y));
+           //_alpha = roundNumbers(calcAlphaFromXY(getX(),y));
+           _radius = Math.sqrt((y * y) + (x * x));
+           _alpha = (Math.atan(y/x) * 180) / Math.PI;
         }
     }
     /**
@@ -87,7 +121,7 @@ public class Point
      */
     public java.lang.String toString()
     {
-        return "(" + (getY()) + "," + (getX()) + ")";
+        return "(" + (getX()) + "," + (getY()) + ")";
     }
     /**
      * This method checks if the given point is equal to this point.
@@ -96,7 +130,7 @@ public class Point
      */
     public boolean equals(Point other)
     {
-        return (other.getX() == getX() && other.getY() == getY());
+        return (other.getX() == this.getX() && other.getY() == this.getY());
     }
     /**
     * This method checks if this point is above a received point.
@@ -105,7 +139,7 @@ public class Point
     */
     public boolean isAbove(Point other)
     {
-        //return (other._y < _y);
+        return (other.getY() < this.getY());
     }
     /**
     * This method checks if this point is below a received point.
@@ -123,7 +157,7 @@ public class Point
     */
     public boolean isLeft(Point other)
     {
-        //return (_x < other._x);
+        return (this.getX() < other.getX());
     }
     /**
     * This method checks if this point is right of a received point.
@@ -132,7 +166,7 @@ public class Point
     */
     public boolean isRight(Point other)
     {
-        //return (other.isLeft(this));
+        return (other.isLeft(this));
     }
     /**
      * This method Moves a point. If either coordinate becomes negative the point remains unchanged.
@@ -141,10 +175,10 @@ public class Point
      */
     public void move(double dx, double dy)
     {
-        if ((_x + dx) >= DEFAULT_VAL || (_y + dy) >= DEFAULT_VAL)
+        if ((getX() + dx) >= DEFAULT_VAL && (getY() + dy) >= DEFAULT_VAL)
         {
-           //_x = _x + dx;
-           //_y = _y + dy;
+           setX((this.getX()+dx));
+           setY((this.getY()+dy));
         }
     }
     /**
@@ -155,7 +189,6 @@ public class Point
      */
     public double distance(Point other)
     {
-        //return(Math.sqrt(Math.pow((other.x - _x),2) + Math.pow((other.y - _y),2)));
-        //return(     Math.sqrt(      Math.pow((other._y - _y),2)     +       Math.pow((other._x -_x),2)        )          );
+        return roundNumbers((Math.sqrt(Math.pow((other.getX() - this.getX()),2) + Math.pow((other.getY() - this.getY()),2))));
     }
 }
