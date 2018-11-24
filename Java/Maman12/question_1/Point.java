@@ -12,6 +12,9 @@ public class Point
     private final double DEFAULT_VAL=0.0;
     private final double TO_DEG=(180/Math.PI);
     private final double TO_RAD=(Math.PI/180);
+    private final int POW=2;
+    private final double DEG=180.0; 
+    private final double PIE=Math.PI;
     // constructors
     /**
      * Constructor for objects of class Point. Construct a new point with the specified x y coordinates. 
@@ -48,7 +51,7 @@ public class Point
      */
     private double calcRadiusFromXY(double x, double y) 
     {
-        return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+        return Math.sqrt(Math.pow(x,POW) + Math.pow(y,POW));
     }
     /**
      * Returns the angle of the given point. 
@@ -57,7 +60,7 @@ public class Point
      */
     private double calcAlphaFromXY(double x, double y) 
     {
-        return (Math.atan(y/x) * 180) / Math.PI;
+        return (Math.atan(y/x) * DEG) / PIE;
     }
     /**
      * This method rounds double number.
@@ -93,10 +96,8 @@ public class Point
         double y = this.getY();
         if (x>=DEFAULT_VAL)
         {
-           //_radius = roundNumbers(calcRadiusFromXY(x,getY()));
-           //_alpha = roundNumbers(calcAlphaFromXY(x,getY()));
            _radius = Math.sqrt((y * y) + (x * x));
-           _alpha = (Math.atan(y/x) * 180) / Math.PI;
+           _alpha = (Math.atan(y/x) * DEG) / PIE;
         }
     }
     /**
@@ -111,7 +112,7 @@ public class Point
            //_radius = roundNumbers(calcRadiusFromXY(getX(),y));
            //_alpha = roundNumbers(calcAlphaFromXY(getX(),y));
            _radius = Math.sqrt((y * y) + (x * x));
-           _alpha = (Math.atan(y/x) * 180) / Math.PI;
+           _alpha = (Math.atan(y/x) * DEG) / PIE;
         }
     }
     /**
@@ -189,6 +190,6 @@ public class Point
      */
     public double distance(Point other)
     {
-        return roundNumbers((Math.sqrt(Math.pow((other.getX() - this.getX()),2) + Math.pow((other.getY() - this.getY()),2))));
+        return roundNumbers((Math.sqrt(Math.pow((other.getX() - this.getX()),POW) + Math.pow((other.getY() - this.getY()),POW))));
     }
 }
