@@ -9,9 +9,21 @@ void sequence_f(char arr[])
     int really_up=0;
     int really_down=0;
     int no_order=0; /* declare the variables that will keep count of the way the sequence is arranged */
-    int i = 0;
-    int j = 1;
-    
+    int i=0;
+    int j=1;
+    while (arr[j] != '\0')
+    {
+        printf("The Character at %d Index Position = %c \n", i, arr[i]);
+        i++;
+        printf("The Character at %d Index Position = %c \n", j, arr[j]);
+        j++;
+        if (arr[i] < arr[j])
+            up++;
+        if (arr[i] > arr[j])
+            down++;
+        else
+            no_order++;
+    }
     printf("The string is %s\n", arr);
     printf("up %d\n", up);
     printf("really up %d\n", really_up);
