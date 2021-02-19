@@ -84,7 +84,7 @@ controller:
   # being deprecated and replaced by `podSecurityContextOverride`.
   # Set runAsUser to 1000 to let Jenkins run as non-root user 'jenkins' which exists in 'jenkins/jenkins' docker image.
   # When setting runAsUser to a different value than 0 also set fsGroup to the same value:
-  runAsUser: 0
+  runAsUser: 1000
   fsGroup: 1000
   # If you have PodSecurityPolicies that require dropping of capabilities as suggested by CIS K8s benchmark, put them here
   securityContextCapabilities: {}
@@ -327,7 +327,7 @@ controller:
   statefulSetAnnotations: {}
 
   ingress:
-    enabled: true
+    enabled: false
     # Override for the default paths that map requests to the backend
     paths: []
     # - backend:
@@ -658,16 +658,17 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass:
+  storageClass: jenkins-pv
   annotations: {}
   accessMode: "ReadWriteOnce"
-  size: "1Gi"
+  size: "2Gi"
   volumes:
-   - name: jenkins_home
+  #  - name: nothing
+  #    emptyDir: {}
   mounts:
-   - mountPath: /var/lib/jenkins
-     name: nothing
-     readOnly: false
+  #  - mountPath: /var/nothing
+  #    name: nothing
+  #    readOnly: true
 
 networkPolicy:
   # Enable creation of NetworkPolicy resources.
