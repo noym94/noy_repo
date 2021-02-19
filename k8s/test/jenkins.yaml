@@ -1,0 +1,39 @@
+---
+controller:
+  overwritePluginsFromImage: false
+  runAsUser: 0
+  fsGroup: 1000
+  JCasC:
+    authorizationStrategy: |-
+      loggedInUsersCanDoAnything:
+        allowAnonymousRead: true
+    securityRealm: |-
+      ldap:
+        configurations:
+          - server: ldap.acme.com
+            rootDN: dc=acme,dc=uk
+            managerPasswordSecret: ${LDAP_PASSWORD}
+            groupMembershipStrategy:
+              fromUserRecord:
+                attributeName: "memberOf"
+  additionalPlugins:
+    - ldap:1.24
+  scriptApproval:
+    - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
+    - "new groovy.json.JsonSlurperClassic"
+
+  ingress:
+    enabled: true
+  
+  installPlugins:
+    - kubernetes:1.29.0
+    - workflow-aggregator:2.6
+    - git:4.5.2
+    - configuration-as-code:1.47
+
+persistence:
+  enabled: true
+  storageClass: "jenkins-pv"
+  annotations: {}
+  accessMode: "ReadWriteOnce"
+  size: "8Gi"

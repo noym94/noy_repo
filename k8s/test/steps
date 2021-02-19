@@ -1,0 +1,48 @@
+#!/bin/bash
+echo "Creating general Namespace"
+kubectl create -f namespace.yaml
+
+echo "Creating jenkins-pv PVC"
+kubectl create -f pvc.yaml
+
+echo "Installing Jenkins using Helm"
+helm install -f jenkins.yaml noy jenkins/jenkins
+
+echo "Watiting for Jenkins to startup"
+while (kubectl get pods --field-selector=status.phase=Running == 0)
+do
+  sleep
+done
+
+echo "Get Jenkins Initial Admin Password"
+kubectl exec --namespace default -it svc/noy-jenkins -c jenkins -- /bin/cat /run/secrets/chart-admin-password && echo
+
+echo "Expose Jenkins Service on port 8080"
+echo http://127.0.0.1:8080
+kubectl --namespace default port-forward svc/noy-jenkins 8080:8080 &
+
+echo "Enable reverse-proxy"
+kubectl proxy --port=8081 &
+
+echo "Print k8s Cluster IP"
+curl http://127.0.0.1:8081/api | jq .serverAddressByClientCIDRs[].serverAddress
+
+
+
+
+NOTES:
+1. Get your 'admin' user password by running:
+  kubectl exec --namespace default -it svc/noy2-jenkins -c jenkins -- /bin/cat /run/secrets/chart-admin-password && echo
+
+  vdd9dneoR53X40JJytQ0Ie
+
+
+
+
+2. Get the Jenkins URL to visit by running these commands in the same shell:
+  echo http://127.0.0.1:8080
+  kubectl --namespace default port-forward svc/noy2-jenkins 8080:8080
+
+3. Login with the password from step 1 and the username: admin
+4. Configure security realm and authorization strategy
+5. Use Jenkins Configuration as Code by specifying configScripts in your values.yaml file, see documentation: http:///configuration-as-code and examples: https://github.com/jenkinsci/configuration-as-code-plugin/tree/master/demos
