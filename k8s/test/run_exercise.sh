@@ -8,6 +8,9 @@ kubectl create -f pvc.yaml
 echo "Installing Jenkins using Helm"
 helm install -f jenkins.yaml noy jenkins/jenkins
 
+echo "Allow default users permissions"
+kubectl create clusterrolebinding serviceaccounts-cluster-admin --clusterrole=cluster-admin --group=system:serviceaccounts
+
 echo "Watiting for Jenkins to startup"
 while (kubectl get pods --field-selector=status.phase=Running == 0)
 do
@@ -27,22 +30,13 @@ kubectl proxy --port=8081 &
 echo "Print k8s Cluster IP"
 curl http://127.0.0.1:8081/api | jq .serverAddressByClientCIDRs[].serverAddress
 
+# create gruntwork namespace
+kubectl create namespace gruntwork
 
+# create app
+helm install noy benc-uk/webapp -n gruntwork --version 1.3.0 -f webapp.yaml
 
-
-NOTES:
-1. Get your 'admin' user password by running:
-  kubectl exec --namespace default -it svc/noy2-jenkins -c jenkins -- /bin/cat /run/secrets/chart-admin-password && echo
-
-  vdd9dneoR53X40JJytQ0Ie
-
-
-
-
-2. Get the Jenkins URL to visit by running these commands in the same shell:
-  echo http://127.0.0.1:8080
-  kubectl --namespace default port-forward svc/noy2-jenkins 8080:8080
-
-3. Login with the password from step 1 and the username: admin
-4. Configure security realm and authorization strategy
-5. Use Jenkins Configuration as Code by specifying configScripts in your values.yaml file, see documentation: http:///configuration-as-code and examples: https://github.com/jenkinsci/configuration-as-code-plugin/tree/master/demos
+# export
+export POD_NAME=$(kubectl get pods --namespace gruntwork -l "app.kubernetes.io/name=webapp,app.kubernetes.io/instance=my-webapp" -o jsonpath="{.items[0].metadata.name}")
+echo "Visit http://127.0.0.1:8088 to use your application"
+kubectl --namespace gruntwork port-forward $POD_NAME 8088:80

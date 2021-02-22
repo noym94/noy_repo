@@ -7,15 +7,6 @@ controller:
     authorizationStrategy: |-
       loggedInUsersCanDoAnything:
         allowAnonymousRead: true
-    securityRealm: |-
-      ldap:
-        configurations:
-          - server: ldap.acme.com
-            rootDN: dc=acme,dc=uk
-            managerPasswordSecret: ${LDAP_PASSWORD}
-            groupMembershipStrategy:
-              fromUserRecord:
-                attributeName: "memberOf"
   additionalPlugins:
     - ldap:1.24
   scriptApproval:

@@ -1,0 +1,82 @@
+pipeline {
+    agent {
+        kubernetes {
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: kubectl
+      image: bitnami/kubectl
+      command:
+        - sleep
+      args:
+        - infinity
+    - name: helm
+      image: alpine/helm
+      command:
+        - sleep
+      args:
+        - infinity
+    - name: shell
+      image: ubuntu
+      command:
+        - sleep
+      args:
+        - infinity
+    - name: git
+      image: alpine/git
+      command:
+        - sleep
+      args:
+        - infinity
+    - name: docker
+      image: docker
+      volumeMounts:
+        - name: docker
+          mountPath: /var/run/docker.sock
+      user: root  
+      command:
+        - sleep
+      args:
+        - infinity
+  volumes:
+    - name: docker
+      hostPath:
+        path: /var/run/docker.sock
+'''
+            defaultContainer 'shell'
+        }
+    }
+    stages {        
+        stage('Clone Repo') {
+              steps {
+                retry(3) {
+                  container('git') {
+                    sh 'git clone -b master https://github.com/gruntwork-io/sample-app-docker.git'
+                  }
+              }
+           }
+        }
+
+        stage('Build and Push Docker Image') {
+             steps {
+                  retry(3) { 
+                    container('docker') { 
+                      sh "docker login -u noym -p Aa1234567" 
+                      sh "docker build -t noym/sample-app-docker sample-app-docker/." 
+                      sh "docker push noym/sample-app-docker"
+                    }
+                 }
+             }
+        }
+
+        stage('Apply Kubernetes files') {
+            steps {
+                container('kubectl') {
+                      sh "kubectl create ns gruntwork"
+                }
+            }
+       }
+    }
+}
