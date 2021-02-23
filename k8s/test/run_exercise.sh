@@ -8,6 +8,9 @@ kubectl create -f pvc.yaml
 echo "Installing Jenkins using Helm"
 helm install -f jenkins.yaml noy jenkins/jenkins
 
+echo "Copy Pipeline Config to jenkins home"
+kubectl cp pipeline noy-jenkins-0:/var/jenkins_home/jobs/pipeline/config.xml -c jenkins
+
 echo "Allow default users permissions"
 kubectl create clusterrolebinding serviceaccounts-cluster-admin --clusterrole=cluster-admin --group=system:serviceaccounts
 
@@ -30,13 +33,7 @@ kubectl proxy --port=8081 &
 echo "Print k8s Cluster IP"
 curl http://127.0.0.1:8081/api | jq .serverAddressByClientCIDRs[].serverAddress
 
-# create gruntwork namespace
-kubectl create namespace gruntwork
-
-# create app
-helm install noy benc-uk/webapp -n gruntwork --version 1.3.0 -f webapp.yaml
-
-# export
+echo "Export sample-app"
 export POD_NAME=$(kubectl get pods --namespace gruntwork -l "app.kubernetes.io/name=webapp,app.kubernetes.io/instance=my-webapp" -o jsonpath="{.items[0].metadata.name}")
 echo "Visit http://127.0.0.1:8088 to use your application"
 kubectl --namespace gruntwork port-forward $POD_NAME 8088:80

@@ -29,7 +29,7 @@ service:
   # -- Port the service accepts traffic on
   port: 80
   # -- Port the container accepts traffic on
-  targetPort: 8080
+  targetPort: 8088
 
 # Configure Ingress, switch on/off-able
 ingress:
